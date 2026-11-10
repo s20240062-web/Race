@@ -45,9 +45,11 @@ input{font:bold 22px system-ui;padding:10px;width:130px;border-radius:10px;borde
 #lights i{width:3vh;height:3vh;border-radius:50%;background:#3a0a0a;animation:lamp 3.6s infinite}
 #lights i:nth-child(2){animation-delay:.3s}#lights i:nth-child(3){animation-delay:.6s}
 #logo{text-align:center;animation:popin .8s cubic-bezier(.2,1.4,.4,1) both}
-#logo .t{display:inline-block;position:relative;isolation:isolate;font:900 italic min(15vh,88px)/1 "Arial Black",Impact,system-ui,sans-serif;letter-spacing:.02em;margin:0 .08em;background:linear-gradient(#fff6a8,#ffd23f 45%,#ff8a1f);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 .8vh 0 #0b1450)}
-#logo .t:before{content:attr(data-t);position:absolute;left:0;top:0;z-index:-1;color:#1b2a78;-webkit-text-stroke:1.7vh #1b2a78;background:none}
-#logo .t.r{background:linear-gradient(#ffc0c0,#ff4a4a 50%,#c40d3a);-webkit-background-clip:text;background-clip:text}
+#logo .t{display:inline-block;position:relative;font:900 italic min(15vh,88px)/1 "Arial Black",Impact,system-ui,sans-serif;letter-spacing:.02em;margin:0 .08em;color:transparent;filter:drop-shadow(0 .8vh 0 #0b1450)}
+#logo .t:before,#logo .t:after{content:attr(data-t);position:absolute;left:0;top:0;white-space:nowrap}
+#logo .t:before{color:#1b2a78;-webkit-text-stroke:1.7vh #1b2a78}
+#logo .t:after{background:linear-gradient(#fff6a8,#ffd23f 45%,#ff8a1f);-webkit-background-clip:text;background-clip:text;color:transparent}
+#logo .t.r:after{background:linear-gradient(#ffc0c0,#ff4a4a 50%,#c40d3a);-webkit-background-clip:text;background-clip:text}
 #logo .s{font:800 min(2.8vh,18px) system-ui;letter-spacing:.2em;color:#fff;text-shadow:0 .3vh 0 #0b1450,0 0 2vh #4fd0ff}
 #cards{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap}
 .mc{position:relative;overflow:hidden;width:min(28vw,250px);padding:1.6vh .8vw;border:0;border-radius:2.4vh;color:#fff;display:flex;flex-direction:column;align-items:center;gap:.4vh;font-family:system-ui,sans-serif;box-shadow:0 1vh 0 var(--sh),0 2vh 3vh #0007,inset 0 .6vh 0 #fff6;background:linear-gradient(var(--a),var(--b));animation:popin .6s cubic-bezier(.2,1.4,.4,1) both;transition:transform .1s}
@@ -143,11 +145,16 @@ input{font:bold 22px system-ui;padding:10px;width:130px;border-radius:10px;borde
 .rnote{font:700 min(2.2vh,13px) system-ui;opacity:.8}
 .bigt{font:900 min(11vh,70px) system-ui;color:#fff;text-shadow:0 .6vh 0 #14327f}.bigt small{font-size:.4em}
 .nb{font:900 min(4vh,24px) system-ui;color:#ffe14d}.bst{font:800 min(3vh,18px) system-ui;opacity:.85}
+#spec{position:fixed;left:1.5vw;top:22vh;width:25vw;height:14vw;max-height:32vh;border:.5vh solid #fff;border-radius:2vh;box-shadow:0 0 2vh #000a;z-index:30;pointer-events:auto;overflow:hidden}
+#spec span{position:absolute;left:0;top:0;background:#000a;color:#fff;font:800 min(2.4vh,14px) system-ui;padding:.4vh 1.2vh;border-radius:0 0 1.6vh 0}
+#spec small{position:absolute;right:.8vh;bottom:.5vh;color:#fffc;font:700 min(1.8vh,11px) system-ui;text-shadow:0 0 4px #000}
+#res.net{pointer-events:none;background:none!important;backdrop-filter:none!important;justify-content:flex-end;padding-right:3vw}
+#res.net .rp{pointer-events:auto}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud" class="hide"><div id="rk"></div><div id="lp"></div><div id="tm"></div><div id="cn"></div><div id="sl"><span></span><span></span></div><div id="spd"></div><div id="ctr"></div><div id="by"></div><div id="ink"></div></div>
 <div id="wheel" class="ctl hide"><div id="wi"><i></i></div></div>
-<div id="bGas" class="ctl b hide">GAS</div><div id="bBrk" class="ctl b hide">BRAKE</div><div id="bDrift" class="ctl b hide">DRIFT</div><div id="bItem" class="ctl b hide">ITEM</div>
+<div id="bGas" class="ctl b hide">GAS</div><div id="bBrk" class="ctl b hide">BRAKE</div><div id="bDrift" class="ctl b hide">DRIFT</div><div id="bItem" class="ctl b hide">ITEM</div><div id="bBack" class="ctl b hide" style="font-size:16px">BACK</div>
 <div id="edit" class="hide">ボタンをドラッグで移動 / 大きさ<input id="sz" type="range" min="50" max="200" value="100" style="width:140px;padding:0"><button id="rst">リセット</button><button id="done">完了</button></div>
 <div id="menu">
 <div id="namebox"><span>👤</span><input id="pname" maxlength="10" autocomplete="off" placeholder="なまえ"></div>
@@ -167,11 +174,12 @@ input{font:bold 22px system-ui;padding:10px;width:130px;border-radius:10px;borde
 <div id="netp" class="ov hide"><div class="pn"><h2>🌐 通信対戦</h2><button id="mk" class="big g">🏠 部屋をつくる</button><div class="or">— または —</div><div class="jr"><input id="jc" placeholder="0000" inputmode="numeric" maxlength="4"><button id="jn" class="big b">🚪 参加する</button></div><div id="nerr"></div><button id="nback" class="sm">← もどる</button></div></div>
 <div id="lobby" class="ov hide"><div class="pn lb"><div class="lh"><div class="rc">ROOM CODE <b id="rcode"></b></div><div id="badges"></div></div><div id="plist"></div><div id="lnote"></div><div class="lbtn"><button id="rulesBtn" class="big o hide">⚙ ルール設定</button><button id="startNet" class="big g hide">▶ スタート!</button><button id="leave" class="sm">退出</button></div></div></div>
 <div id="rules" class="ov hide"><div class="pn rl"><h2>⚙ ルール設定</h2><div class="sec">🏎️ エンジン(全員共通)</div><div id="ccs"></div><div class="sec">🎁 アイテムボックスの出る割合</div><div id="iw"></div><div class="rb"><button id="rdef" class="big o">↺ デフォルトに戻す</button><button id="rok" class="big g">OK</button></div></div></div>
+<div id="spec" class="hide"><span id="specN"></span><small>タップで切替</small></div>
 <div id="fade"></div><div id="res" class="hide"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
 <script>
-['gesturestart','gesturechange','gestureend'].forEach(e=>document.addEventListener(e,v=>v.preventDefault()));document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale&&e.scale!==1))e.preventDefault()},{passive:false});let _lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lt<350)e.preventDefault();_lt=n},{passive:false});document.addEventListener('dblclick',e=>e.preventDefault());document.addEventListener('contextmenu',e=>e.preventDefault());
+['gesturestart','gesturechange','gestureend'].forEach(e=>document.addEventListener(e,v=>v.preventDefault()));document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale&&e.scale!==1))e.preventDefault()},{passive:false});let _lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(!(e.target.closest&&e.target.closest('.ctl'))&&n-_lt<350)e.preventDefault();_lt=n},{passive:false});document.addEventListener('dblclick',e=>e.preventDefault());document.addEventListener('contextmenu',e=>e.preventDefault());
 const $=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),wrap=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a};
 const R=new THREE.WebGLRenderer({canvas:$('c'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
 const S=new THREE.Scene();S.background=new THREE.Color(0xcfeaff);S.fog=new THREE.Fog(0xcfeaff,300,1800);
@@ -486,22 +494,27 @@ function msg(t,ms){const e=$('ctr');e.textContent=t;clearTimeout(msg.t);msg.t=se
 // ---- controls ----
 const K={};addEventListener('keydown',e=>{K[e.code]=1;if(e.code=='KeyZ'||e.code=='ShiftLeft')tryItem()});addEventListener('keyup',e=>K[e.code]=0);
 let ws=0,wAng=0,wp=null,wlast=0,editing=false,sel=null,drag=false;const BS={};
-const U={wheel:{x:.14,y:.72,s:1},bGas:{x:.92,y:.78,s:1},bBrk:{x:.8,y:.87,s:1},bDrift:{x:.79,y:.66,s:1},bItem:{x:.92,y:.52,s:1}};try{Object.assign(U,JSON.parse(localStorage.kartUI))}catch(e){}
+const U={wheel:{x:.14,y:.72,s:1},bGas:{x:.92,y:.78,s:1},bBrk:{x:.8,y:.87,s:1},bDrift:{x:.79,y:.66,s:1},bItem:{x:.92,y:.52,s:1},bBack:{x:.79,y:.45,s:.8}};try{Object.assign(U,JSON.parse(localStorage.kartUI))}catch(e){}
 const DEF=JSON.stringify(U);
 function placeUI(){for(const id in U){const e=$(id);e.style.left=U[id].x*innerWidth+'px';e.style.top=U[id].y*innerHeight+'px';e.style.transform=`translate(-50%,-50%) scale(${U[id].s})`;e.classList.toggle('sel',editing&&sel==id)}}
 function rs(){R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();placeUI()}addEventListener('resize',rs);
 const ang=e=>{const r=$('wheel').getBoundingClientRect();return Math.atan2(e.clientX-(r.left+r.width/2),-(e.clientY-(r.top+r.height/2)))};
 const wh=$('wheel');
-wh.addEventListener('pointerdown',e=>{if(editing)return;wh.setPointerCapture(e.pointerId);wp=e.pointerId;wlast=ang(e)});
+wh.addEventListener('pointerdown',e=>{if(editing||e.pointerType==='touch')return;wh.setPointerCapture(e.pointerId);wp=e.pointerId;wlast=ang(e)});
 wh.addEventListener('pointermove',e=>{if(editing||wp!=e.pointerId)return;const a=ang(e);wAng=clamp(wAng+wrap(a-wlast),-2.3,2.3);wlast=a});
-wh.addEventListener('pointerup',()=>wp=null);wh.addEventListener('pointercancel',()=>wp=null);
-[['bGas','g'],['bBrk','b'],['bDrift','d'],['bItem','i']].forEach(([id,k])=>{const e=$(id);e.addEventListener('pointerdown',ev=>{if(editing)return;BS[k]=1;if(k=='i')tryItem()});['pointerup','pointercancel','pointerleave'].forEach(n=>e.addEventListener(n,()=>BS[k]=0))});
+wh.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')wp=null});wh.addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')wp=null});
+[['bGas','g'],['bBrk','b'],['bDrift','d'],['bItem','i'],['bBack','r']].forEach(([id,k])=>{const e=$(id);e.addEventListener('pointerdown',ev=>{if(editing||ev.pointerType==='touch')return;BS[k]=1;if(k=='i')tryItem()});['pointerup','pointercancel','pointerleave'].forEach(n=>e.addEventListener(n,ev=>{if(ev.pointerType!=='touch')BS[k]=0}))});
+const TB={bGas:'g',bBrk:'b',bDrift:'d',bItem:'i',bBack:'r'};let wTid=null;
+function touchSync(e){if(editing)return;const ts=[...e.touches].filter(t=>t.identifier!==wTid);for(const id in TB){const el=$(id);if(el.classList.contains('hide')){BS[TB[id]]=0;continue}const r=el.getBoundingClientRect(),pd=10,k=TB[id],on=ts.some(t=>t.clientX>=r.left-pd&&t.clientX<=r.right+pd&&t.clientY>=r.top-pd&&t.clientY<=r.bottom+pd);if(on&&!BS[k]&&k=='i')tryItem();BS[k]=on?1:0}}
+document.addEventListener('touchstart',e=>{if(editing)return;for(const t of e.changedTouches){if(wTid===null&&!wh.classList.contains('hide')&&wh.contains(t.target)){wTid=t.identifier;wp=1;wlast=ang(t)}}touchSync(e)},{passive:true});
+document.addEventListener('touchmove',e=>{if(editing)return;for(const t of e.changedTouches)if(t.identifier===wTid){const a=ang(t);wAng=clamp(wAng+wrap(a-wlast),-2.3,2.3);wlast=a}touchSync(e)},{passive:true});
+const tEnd=e=>{for(const t of e.changedTouches)if(t.identifier===wTid){wTid=null;wp=null}touchSync(e)};document.addEventListener('touchend',tEnd,{passive:true});document.addEventListener('touchcancel',tEnd,{passive:true});
 for(const id in U){const e=$(id);e.addEventListener('pointerdown',ev=>{if(!editing)return;sel=id;drag=true;e.setPointerCapture(ev.pointerId);$('sz').value=U[id].s*100;placeUI()});
 e.addEventListener('pointermove',ev=>{if(!editing||!drag||sel!=id)return;U[id].x=clamp(ev.clientX/innerWidth,.03,.97);U[id].y=clamp(ev.clientY/innerHeight,.05,.97);placeUI()});
 e.addEventListener('pointerup',()=>{drag=false;localStorage.kartUI=JSON.stringify(U)})}
 $('sz').oninput=e=>{if(sel){U[sel].s=e.target.value/100;placeUI();localStorage.kartUI=JSON.stringify(U)}};
 $('rst').onclick=()=>{Object.assign(U,JSON.parse(DEF));localStorage.kartUI=DEF;placeUI()};
-function showCtl(v){['wheel','bGas','bBrk','bDrift','bItem'].forEach(i=>$(i).classList.toggle('hide',!v))}
+function showCtl(v){['wheel','bGas','bBrk','bDrift','bItem','bBack'].forEach(i=>$(i).classList.toggle('hide',!v))}
 $('setBtn').onclick=()=>{editing=true;$('menu').classList.add('hide');showCtl(true);$('edit').classList.remove('hide');sel='wheel';placeUI()};
 $('done').onclick=()=>{editing=false;sel=null;$('edit').classList.add('hide');showCtl(false);$('menu').classList.remove('hide');placeUI()};
 const getIn=()=>({s:clamp(ws+(K.ArrowRight||K.KeyD?1:0)-(K.ArrowLeft||K.KeyA?1:0),-1,1),gas:BS.g||K.ArrowUp||K.KeyW,brake:BS.b||K.ArrowDown||K.KeyS,drift:BS.d||K.Space});
@@ -575,7 +588,7 @@ boxes.forEach(b=>b.m.visible=mode!='ta');$('sl').style.display=mode=='ta'?'none'
 state='count';cdT=3.99;charge=0;raceT=0;resBest='';resSig=''}
 let resTimer=0,resBest='',resSig='';
 function finish(){const e=$('res');if(MODE=='ta'){const t=raceT.toFixed(2),b=+localStorage.kartBest||1e9;if(raceT<b){localStorage.kartBest=raceT;resBest='<div class="nb">🎉 ベスト更新!</div>'}else resBest=`<div class="bst">ベスト ${(+localStorage.kartBest).toFixed(2)}秒</div>`}
-e.classList.remove('hide');renderRes();clearInterval(resTimer);resTimer=setInterval(renderRes,400)}
+e.classList.toggle('net',MODE=='net');e.classList.remove('hide');renderRes();clearInterval(resTimer);resTimer=setInterval(renderRes,400)}
 function renderRes(){const e=$('res');if(!me)return;let h='';
 if(MODE=='ta'){const sig='ta';if(sig==resSig)return;resSig=sig;h=`<div class="rp"><h2>⏱ TIME ATTACK</h2><div class="bigt">${raceT.toFixed(2)}<small>秒</small></div>${resBest}<div class="rbtn"><button class="big g" onclick="resAct('again')">🔁 もう一度</button><button class="big o" onclick="resAct('menu')">メニューへ</button></div></div>`}
 else{const od=order(),sig=od.map(c=>c.id+(c.fin?'F'+c.finT:Math.floor(c.prog/N))).join();if(sig==resSig)return;const first=!resSig;resSig=sig;
@@ -610,17 +623,25 @@ if(wp==null)wAng*=Math.exp(-dt*8);ws=clamp(wAng/1.2,-1,1);$('wi').style.transfor
 lightUpd(dt);sparkUpd(dt);hud();cameraUpd(dt)}
 function hud(){if(!me)return;const r=rank(me);$('rk').textContent=MODE=='ta'?'':r+'位';$('lp').textContent='LAP '+clamp(Math.floor(me.prog/N)+1,1,3)+'/3';$('tm').textContent=Math.max(0,raceT).toFixed(2)+'s';$('cn').textContent='🪙×'+me.coins;$('spd').textContent=Math.round(Math.abs(me.v)*2.2)+' km/h';
 [0,1].forEach(i=>{const s=$('sl').children[i],k=me.items[i];if(me.rt[i]>0){const ks=Object.keys(EM),kk=ks[(Math.floor(performance.now()/(60+(1.3-me.rt[i])*90))+i*4)%ks.length];s.textContent=EM[kk];s.style.filter=FL[kk]||'';s.classList.add('rl')}else{s.textContent=k?EM[k]:'';s.style.filter=FL[k]||'';s.classList.remove('rl')}})}
-function cameraUpd(dt){const m=me,hh=(m.spin>0&&m.hs!=null)?m.hs:m.h,sp=Math.min(1,Math.abs(m.v)/100);let D,H,f=cdT>0&&state=='count'?Math.max(0,cdT)/3.99:0;
+function cameraUpd(dt){const m=me,hh=(m.spin>0&&m.hs!=null)?m.hs:m.h,bk=!!(BS.r||K.KeyB)&&state!='count'&&!m.fin,sp=Math.min(1,Math.abs(m.v)/100);let D,H,f=cdT>0&&state=='count'?Math.max(0,cdT)/3.99:0;
 if(state=='count'){cy=m.h+f*f*2.6;D=7+f*10;H=3.2+f*5}
 else if(m.fin){cy+=dt*.6;D=11;H=5}
-else{cy+=wrap(hh-m.drift*.18-cy)*Math.min(1,dt*(3.5+sp*2));D=7.5+sp*3+(m.boost>0||m.auto>0?2.5:0);H=3.1+sp*.8}
-const sh=(m.boost>0||m.auto>0)?.18:0,tp=new THREE.Vector3(m.x-Math.sin(cy)*D+(Math.random()-.5)*sh,m.y+H+(Math.random()-.5)*sh,m.z-Math.cos(cy)*D);
-if(state=='count')cam.position.copy(tp);else cam.position.lerp(tp,Math.min(1,dt*14));
-cam.lookAt(m.x+Math.sin(hh)*6,m.y+1.3,m.z+Math.cos(hh)*6);cam.rotateZ(ws*.05+m.drift*.07*(m.drift?1:0));
+else{cy+=wrap(hh+(bk?Math.PI:0)-m.drift*.18-cy)*Math.min(1,dt*(3.5+sp*2));D=7.5+sp*3+(m.boost>0||m.auto>0?2.5:0);H=3.1+sp*.8}
+if(bk!==cameraUpd.bp){cameraUpd.bp=bk;cy=hh+(bk?Math.PI:0);cameraUpd.sn=1}
+const hb=bk?hh+Math.PI:hh,sh=(m.boost>0||m.auto>0)?.18:0,tp=new THREE.Vector3(m.x-Math.sin(cy)*D+(Math.random()-.5)*sh,m.y+H+(Math.random()-.5)*sh,m.z-Math.cos(cy)*D);
+if(state=='count'||cameraUpd.sn){cam.position.copy(tp);cameraUpd.sn=0}else cam.position.lerp(tp,Math.min(1,dt*14));
+cam.lookAt(m.x+Math.sin(hb)*6,m.y+1.3,m.z+Math.cos(hb)*6);cam.rotateZ(ws*.05+m.drift*.07*(m.drift?1:0));
 const tf=66+sp*16+(m.boost>0||m.auto>0?14:0)+(m.drift?5:0)+(m.air?8:0);cfov+=(tf-cfov)*Math.min(1,dt*5);if(!isFinite(cfov))cfov=70;cfov=clamp(cfov,55,100);cam.fov=cfov;cam.updateProjectionMatrix()}
+const cam2=new THREE.PerspectiveCamera(70,16/9,.5,3000);let specI=0;
+function specCar(){if(MODE!='net'||!me||!me.fin)return null;const c=cars.filter(x=>!x.me&&!x.fin);if(!c.length)return null;specI%=c.length;return c[specI]}
+$('spec').addEventListener('pointerdown',()=>{specI++});
+function renderSpec(){const e=$('spec'),c=state=='menu'?null:specCar();if(!c){e.classList.add('hide');return}e.classList.remove('hide');$('specN').textContent='👁 '+c.name;
+const r=e.getBoundingClientRect(),w=Math.max(10,r.width|0),h=Math.max(10,r.height|0),y=innerHeight-r.bottom;cam2.aspect=w/h;cam2.updateProjectionMatrix();const hd=c.h;
+cam2.position.set(c.x-Math.sin(hd)*9,c.y+4.2,c.z-Math.cos(hd)*9);cam2.lookAt(c.x+Math.sin(hd)*5,c.y+1.3,c.z+Math.cos(hd)*5);
+R.setScissorTest(true);R.setViewport(r.left,y,w,h);R.setScissor(r.left,y,w,h);R.render(S,cam2);R.setScissorTest(false);R.setViewport(0,0,innerWidth,innerHeight)}
 // idle camera for menu
 let clk=new THREE.Clock(),ta=0;
-function loop(){const dt=Math.min(.05,clk.getDelta());if(state=='menu'){ta+=dt*.08;cam.position.set(Math.sin(ta)*560,130,Math.cos(ta)*520+30);cam.lookAt(0,10,30)}else update(dt);world(dt);R.render(S,cam);requestAnimationFrame(loop)}
+function loop(){const dt=Math.min(.05,clk.getDelta());if(state=='menu'){ta+=dt*.08;cam.position.set(Math.sin(ta)*560,130,Math.cos(ta)*520+30);cam.lookAt(0,10,30)}else update(dt);world(dt);R.render(S,cam);renderSpec();requestAnimationFrame(loop)}
 {const b=+localStorage.kartBest;if(b)$('best').textContent='🏆 ベストタイム '+b.toFixed(2)+'秒'}
 rs();loop();
 </script></body></html>
